@@ -38,6 +38,7 @@ def read_images(path: str) -> np.ndarray:
         base = i * row_count * column_count
 
         for row in range(row_count):
-            image[row][:column_count] = list(data[base + (column_count * row):base + (column_count * row) + column_count])
+            offset = base + (column_count * row)
+            image[row][:column_count] = list(data[offset:offset+column_count])
 
     return images
