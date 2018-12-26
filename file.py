@@ -3,7 +3,15 @@ Module to read in files from http://yann.lecun.com/exdb/mnist/.
 The data format is described at the bottom of the page.
 '''
 
+from collections import namedtuple
+
 import numpy as np
+
+
+Data = namedtuple('Data', [
+    'labels',
+    'images',
+])
 
 
 def read_labels(path: str) -> np.ndarray:
@@ -42,3 +50,14 @@ def read_images(path: str) -> np.ndarray:
             image[row][:column_count] = list(data[offset:offset+column_count])
 
     return images
+
+
+def read_data(operation: str='TRAINING') -> Data:
+    if operation == 'TRAINING':
+        labels = read_labels('data/train-labels-idx1-ubyte')
+        images = read_images('data/train-images-idx3-ubyte')
+    else:
+        labels = read_labels('data/t10k-labels-idx1-ubyte')
+        images = read_labels('data/t10k-images-idx3-ubyte')
+
+    return Data(labels=labels, images=images)
