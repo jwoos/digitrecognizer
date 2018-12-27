@@ -1,5 +1,5 @@
 '''
-CNN functions - these only support 2D matrices
+CNN Layers - supports 2D and 3D inputs
 '''
 
 from enum import Enum, auto
@@ -11,41 +11,72 @@ class Convolution:
     def __init__(
         self,
         filters: np.ndarray,
+        biases: np.ndarray,
         size: int,
         stride: int,
         padding: int,
+        activation,
     ):
         # array of filters
         self.filters = filters
+        # biases per filter
+        self.biases = biases
         # filter is a square - (self.size, self.size)
         self.size = size
         # how many pixels to move over
         self.stride = stride
         # 0 pad the input to keep the original size
         self.padding = padding
+        # activation function
+        self.activation = activation
 
     def operate(self, data: np.ndarray) -> np.ndarray:
         row_offset = 0
         column_offset = 0
 
-        rows, columns = data.shape()
+        rows, columns = data.shape
 
         out_row_count = (rows - self.size + 2 * self.padding) / self.stride + 1
         out_column_count = (columns - self.size + 2 * self.padding) / self.stride + 1
+        out_depth_count = self.filters.shape[0]
+
+        output = np.zeros((out_row_count, out_column_count, out_depth_count))
 
         # pad the data
         data = np.pad(data, self.padding, 'constant')
 
-        output = np.zeros((out_row_count, out_column_count))
+        if len(data.shape) == 2:
+            # 2 dimensional data
 
-        for i in range(out_row_count):
-            for j in range(out_column_count):
-                window = data[row_offset:self.size,column_offset:self.size]
-                output[i][j] = operation(window)
+            # for each filter
+            for k in range(out_depth_count):
+                # for each row
+                for i in range(out_row_count):
+                    # for each column
+                    for j in range(out_column_count):
+                        window = data[row_offset:self.size,column_offset:self.size]
+                        output[i][j][k] = np.sum(window * self.filters[0])
 
-                column_offset += self.stride
+                        column_offset += self.stride
 
-            row_offset += self.stride
+                    row_offset += self.stride
+        else:
+            # 3 dimensional data
+
+            # for each filter
+            for f in range(out_depth_count):
+                # for each row
+                for i in range(out_row_count):
+                    # for each column
+                    for j in range(out_column_count):
+                        for k in range(data.shape[2]):
+                            window = data[row_offset:self.size,column_offset:self.size,k]
+                            output[i][j][f] = np.sum(window * self.filters[:,:,k])
+
+                        column_offset += self.stride
+
+                    row_offset += self.stride
+
 
         return output
 
@@ -81,20 +112,48 @@ class Pool:
         row_offset = 0
         column_offset = 0
 
-        rows, columns = data.shape()
+        # Only difference between 2D and 3D pooling is that 3D
+        # is pooled per depth layer
+        if len(data.shape) == 2:
+            # 2 dimensional data
+            rows, columns = data.shape
 
-        out_row_count = (rows - self.size) / self.stride + 1
-        out_column_count = (columns - self.size) / self.stride + 1
+            out_row_count = (rows - self.size) / self.stride + 1
+            out_column_count = (columns - self.size) / self.stride + 1
 
-        output = np.zeros((out_row_count, out_column_count))
+            output = np.zeros((out_row_count, out_column_count))
 
-        for i in range(out_row_count):
-            for j in range(out_column_count):
-                window = data[row_offset:self.size,column_offset:self.size]
-                output[i][j] = operation(window)
+            for i in range(out_row_count):
+                for j in range(out_column_count):
+                    window = data[row_offset:self.size,column_offset:self.size]
+                    output[i,j] = operation(window)
 
-                column_offset += self.stride
+                    column_offset += self.stride
 
-            row_offset += self.stride
+                row_offset += self.stride
+        else:
+            # 3 dimensional data
+            rows, columns, depth = data.shape
+
+            out_row_count = (rows - self.size) / self.stride + 1
+            out_column_count = (columns - self.size) / self.stride + 1
+            out_depth_count = depth
+
+            output = np.zeros((out_row_count, out_column_count))
+
+            for k in range(out_depth_count):
+                for i in range(out_row_count):
+                    for j in range(out_column_count):
+                        window = data[row_offset:self.size,column_offset:self.size, k]
+                        output[i,j,k] = operation(window)
+
+                        column_offset += self.stride
+
+                    row_offset += self.stride
 
         return output
+
+
+class FC:
+    def __init__(self):
+        pass
