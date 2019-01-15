@@ -7,6 +7,28 @@ from enum import Enum, auto
 import numpy as np
 
 
+class ActivationType(Enum):
+    RELU = auto()
+    SIGMOID = auto()
+
+
+class Activation:
+    @staticmethod
+    def relu(data: float) -> float:
+        pass
+
+    def relu_array(data: np.ndarray) -> np.ndarray:
+        pass
+
+    @staticmethod
+    def sigmoid(data: float) -> float:
+        pass
+
+    @staticmethod
+    def sigmoid_array(data: np.ndarray) -> np.ndarray:
+        pass
+
+
 class Convolution:
     def __init__(
         self,
@@ -15,7 +37,7 @@ class Convolution:
         size: int,
         stride: int,
         padding: int,
-        activation,
+        activation: ActivationType=ActivationType.RELU,
     ):
         # array of filters
         self.filters = filters
@@ -31,6 +53,13 @@ class Convolution:
         self.activation = activation
 
     def operate(self, data: np.ndarray) -> np.ndarray:
+        if self.activation == ActivationType.RELU:
+            activation = Activation.relu
+        elif self.activation == ActivationType.SIGMOID:
+            activation = Activation.sigmoid
+        else:
+            raise Exception('Invalid activation function')
+
         row_offset = 0
         column_offset = 0
 
@@ -55,7 +84,7 @@ class Convolution:
                     # for each column
                     for j in range(out_column_count):
                         window = data[row_offset:self.size,column_offset:self.size]
-                        output[i][j][k] = np.sum(window * self.filters[0])
+                        output[i][j][k] = activation(np.sum(window * self.filters[0]))
 
                         column_offset += self.stride
 
@@ -71,7 +100,7 @@ class Convolution:
                     for j in range(out_column_count):
                         for k in range(data.shape[2]):
                             window = data[row_offset:self.size,column_offset:self.size,k]
-                            output[i][j][f] = np.sum(window * self.filters[:,:,k])
+                            output[i][j][f] = activation(np.sum(window * self.filters[:,:,k]))
 
                         column_offset += self.stride
 
