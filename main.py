@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-import layer
+import layers
 from file import read_data
 
 import numpy as np

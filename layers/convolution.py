@@ -1,12 +1,15 @@
 '''
 CNN Layer - supports 2D and 3D inputs
 '''
+import abc
 import math
 
 import numpy as np
 
+from layers.activation import ActivationType, Activation
 
-class Convolution:
+
+class BaseConvolution(abc.ABC):
     def __init__(
         self,
         filters: np.ndarray,
@@ -29,6 +32,12 @@ class Convolution:
         # activation function
         self.activation = activation
 
+    @abc.abstractmethod
+    def operate(self, data:np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
+
+class WindowConvolution(BaseConvolution):
     def operate(self, data: np.ndarray) -> np.ndarray:
         if self.activation == ActivationType.RELU:
             activation = Activation.relu
@@ -99,3 +108,9 @@ class Convolution:
 
 
         return output
+
+
+class MMConvolution(BaseConvolution):
+    @abc.abstractmethod
+    def operate(self, data: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()

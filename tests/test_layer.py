@@ -3,7 +3,7 @@ from unittest import TestCase, mock
 import numpy as np
 import pytest
 
-from .. import layer
+import layers
 
 
 class TestConvolutionInitialization(TestCase):
@@ -16,7 +16,7 @@ class TestConvolutionInitialization(TestCase):
             'padding': 1,
             'activation': mock.Mock(),
         }
-        conv = layer.Convolution(**args)
+        conv = layers.convolution.WindowConvolution(**args)
 
         for k, v in args.items():
             if k == 'filters' or k == 'biases':
@@ -26,7 +26,7 @@ class TestConvolutionInitialization(TestCase):
 
 class TestConvolutionOperation(TestCase):
     def test_2d(self):
-        conv = layer.Convolution(
+        conv = layers.convolution.WindowConvolution(
             filters=np.array([
                 [
                     [0, 1, 1],
@@ -38,7 +38,7 @@ class TestConvolutionOperation(TestCase):
             size=3,
             stride=2,
             padding=1,
-            activation=layer.ActivationType.RELU,
+            activation=layers.activation.ActivationType.RELU,
         )
 
         conv.operate(np.array([
@@ -66,7 +66,7 @@ class TestConvolutionOperation(TestCase):
             [1, 0, 1],
             [1, 0, 0],
         ])
-        conv = layer.Convolution(
+        conv = layers.convolution.WindowConvolution(
             filters=np.array([
                 filter1
             ]),
@@ -74,7 +74,7 @@ class TestConvolutionOperation(TestCase):
             size=3,
             stride=2,
             padding=1,
-            activation=layer.ActivationType.RELU,
+            activation=layers.activation.ActivationType.RELU,
         )
 
         data = np.zeros((5, 5, 3))
@@ -105,10 +105,10 @@ class TestConvolutionOperation(TestCase):
 
 class TestPoolOperation(TestCase):
     def test_2d(self):
-        pool = layer.Pool(
+        pool = layers.pool.Pool(
             size=2,
             stride=2,
-            operation=layer.PoolOperation.MAX,
+            operation=layers.pool.PoolOperation.MAX,
         )
 
         pool.operate(np.array([
@@ -119,10 +119,10 @@ class TestPoolOperation(TestCase):
         ]))
 
     def test_3d(self):
-        pool = layer.Pool(
+        pool = layers.pool.Pool(
             size=2,
             stride=2,
-            operation=layer.PoolOperation.MAX,
+            operation=layers.pool.PoolOperation.MAX,
         )
 
         data = np.zeros((4, 4, 3))
