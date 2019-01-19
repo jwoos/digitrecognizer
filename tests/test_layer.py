@@ -23,3 +23,81 @@ class TestConvolutionInitialization(TestCase):
                 self.assertTrue(np.array_equal(v, getattr(conv, k)))
             else:
                 self.assertEqual(v, getattr(conv, k))
+
+class TestConvolutionOperation(TestCase):
+    def test_2d(self):
+        conv = layer.Convolution(
+            filters=np.array([
+                [
+                    [0, 1, 1],
+                    [0, 1, 0],
+                    [-1, -1, 1],
+                ],
+            ]),
+            biases=[0],
+            size=3,
+            stride=2,
+            padding=1,
+            activation=layer.ActivationType.RELU,
+        )
+
+        conv.operate(np.array([
+            [0, 0, 1, 2, 0],
+            [2, 0, 2, 0, 1],
+            [2, 2, 2, 0, 0],
+            [1, 2, 1, 0, 0],
+            [1, 2, 0, 2, 2],
+        ]))
+
+    def test_3d(self):
+        filter1 = np.zeros((3, 3, 3))
+        filter1[:,:,0] = np.array([
+            [0, 1, 1],
+            [0, 0, 0],
+            [-1, -1, 0],
+        ])
+        filter1[:,:,1] = np.array([
+            [0, 0, -1],
+            [-1, -1, 0],
+            [1, 1, 1],
+        ])
+        filter1[:,:,2] = np.array([
+            [-1, -1, 0],
+            [1, 0, 1],
+            [1, 0, 0],
+        ])
+        conv = layer.Convolution(
+            filters=np.array([
+                filter1
+            ]),
+            biases=[1],
+            size=3,
+            stride=2,
+            padding=1,
+            activation=layer.ActivationType.RELU,
+        )
+
+        data = np.zeros((5, 5, 3))
+        data[:,:,0] = np.array([
+            [0, 0, 1, 2, 0],
+            [2, 0, 2, 0, 1],
+            [2, 2, 2, 0, 0],
+            [1, 2, 1, 0, 0],
+            [1, 2, 0, 2, 2],
+        ])
+        data[:,:,1] = np.array([
+            [0, 1, 0, 2, 1],
+            [2, 2, 0, 1, 0],
+            [0, 1, 1, 0, 0],
+            [2, 2, 0, 1, 1],
+            [1, 0, 2, 0, 0],
+        ])
+        data[:,:,2] = np.array([
+            [1, 1, 2, 2, 1],
+            [0, 0, 1, 2, 0],
+            [2, 1, 0, 2, 1],
+            [2, 0, 0, 0, 0],
+            [2, 1, 2, 0, 1],
+        ])
+
+        conv.operate(data)

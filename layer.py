@@ -3,6 +3,7 @@ CNN Layers - supports 2D and 3D inputs
 '''
 
 from enum import Enum, auto
+import math
 
 import numpy as np
 
@@ -15,10 +16,11 @@ class ActivationType(Enum):
 class Activation:
     @staticmethod
     def relu(data: float) -> float:
-        pass
+        return max(0, data)
 
     def relu_array(data: np.ndarray) -> np.ndarray:
-        pass
+        data[data < 0] = 0
+        return data
 
     @staticmethod
     def sigmoid(data: float) -> float:
@@ -47,7 +49,7 @@ class Convolution:
         self.size = size
         # how many pixels to move over
         self.stride = stride
-        # 0 pad the input to keep the original size
+        # zero pad the input to keep the original size
         self.padding = padding
         # activation function
         self.activation = activation
@@ -60,31 +62,35 @@ class Convolution:
         else:
             raise Exception('Invalid activation function')
 
-        row_offset = 0
-        column_offset = 0
+        if len(data.shape) == 2:
+            rows, columns = data.shape
+        else:
+            rows, columns, _ = data.shape
 
-        rows, columns = data.shape
-
-        out_row_count = (rows - self.size + 2 * self.padding) / self.stride + 1
-        out_column_count = (columns - self.size + 2 * self.padding) / self.stride + 1
+        out_row_count = math.ceil((rows - self.size + 2 * self.padding) / self.stride + 1)
+        out_column_count = math.ceil((columns - self.size + 2 * self.padding) / self.stride + 1)
         out_depth_count = self.filters.shape[0]
 
         output = np.zeros((out_row_count, out_column_count, out_depth_count))
 
-        # pad the data
-        data = np.pad(data, self.padding, 'constant')
+        row_offset = 0
+        column_offset = 0
 
         if len(data.shape) == 2:
             # 2 dimensional data
+
+            # pad the data
+            data = np.pad(data, self.padding, 'constant')
 
             # for each filter
             for k in range(out_depth_count):
                 # for each row
                 for i in range(out_row_count):
                     # for each column
+                    column_offset = 0
                     for j in range(out_column_count):
-                        window = data[row_offset:self.size,column_offset:self.size]
-                        output[i][j][k] = activation(np.sum(window * self.filters[0]))
+                        window = data[row_offset:row_offset+self.size,column_offset:column_offset+self.size]
+                        output[i,j,k] = activation(np.sum(window * self.filters[0]) + self.biases[0])
 
                         column_offset += self.stride
 
@@ -93,15 +99,25 @@ class Convolution:
             # 3 dimensional data
 
             # for each filter
-            for f in range(out_depth_count):
+            for f, _filter in enumerate(self.filters):
+                bias = self.biases[f]
+
                 # for each row
                 for i in range(out_row_count):
                     # for each column
-                    for j in range(out_column_count):
-                        for k in range(data.shape[2]):
-                            window = data[row_offset:self.size,column_offset:self.size,k]
-                            output[i][j][f] = activation(np.sum(window * self.filters[:,:,k]))
+                    column_offset = 0
 
+                    for j in range(out_column_count):
+                        total = 0
+
+                        for k in range(data.shape[2]):
+                            # for each layer
+                            padded_layer = np.pad(data[:,:,k], self.padding, 'constant')
+                            window = padded_layer[row_offset:row_offset+self.size,column_offset:column_offset+self.size]
+                            total += np.sum(window * _filter[:,:,k])
+
+                        output[i,j,f] = total + bias
+                        # output[i,j,f] = activation(total)
                         column_offset += self.stride
 
                     row_offset += self.stride
