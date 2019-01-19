@@ -154,6 +154,21 @@ class Pool:
         else:
             raise Exception('Invalid operation type')
 
+        if len(data.shape) == 2:
+            rows, columns = data.shape
+            depth = 1
+        else:
+            rows, columns, depth = data.shape
+
+        out_row_count = math.ceil((rows - self.size) / self.stride + 1)
+        out_column_count = math.ceil((columns - self.size) / self.stride + 1)
+        out_depth_count = depth
+
+        if len(data.shape) == 2:
+            output = np.zeros((out_row_count, out_column_count))
+        else:
+            output = np.zeros((out_row_count, out_column_count, out_depth_count))
+
         row_offset = 0
         column_offset = 0
 
@@ -161,16 +176,12 @@ class Pool:
         # is pooled per depth layer
         if len(data.shape) == 2:
             # 2 dimensional data
-            rows, columns = data.shape
-
-            out_row_count = (rows - self.size) / self.stride + 1
-            out_column_count = (columns - self.size) / self.stride + 1
-
-            output = np.zeros((out_row_count, out_column_count))
 
             for i in range(out_row_count):
+                column_offset = 0
+
                 for j in range(out_column_count):
-                    window = data[row_offset:self.size,column_offset:self.size]
+                    window = data[row_offset:row_offset+self.size,column_offset:column_offset+self.size]
                     output[i,j] = operation(window)
 
                     column_offset += self.stride
@@ -178,23 +189,18 @@ class Pool:
                 row_offset += self.stride
         else:
             # 3 dimensional data
-            rows, columns, depth = data.shape
 
-            out_row_count = (rows - self.size) / self.stride + 1
-            out_column_count = (columns - self.size) / self.stride + 1
-            out_depth_count = depth
+            for i in range(out_row_count):
+                column_offset = 0
 
-            output = np.zeros((out_row_count, out_column_count))
-
-            for k in range(out_depth_count):
-                for i in range(out_row_count):
-                    for j in range(out_column_count):
-                        window = data[row_offset:self.size,column_offset:self.size, k]
+                for j in range(out_column_count):
+                    for k in range(out_depth_count):
+                        window = data[row_offset:row_offset+self.size,column_offset:column_offset+self.size, k]
                         output[i,j,k] = operation(window)
 
-                        column_offset += self.stride
+                    column_offset += self.stride
 
-                    row_offset += self.stride
+                row_offset += self.stride
 
         return output
 

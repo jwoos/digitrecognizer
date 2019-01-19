@@ -7,7 +7,7 @@ import numpy as np
 
 
 def main():
-    pass
+    conv1 = layer.Convolution()
 
 
 if __name__ == '__main__':

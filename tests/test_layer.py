@@ -101,3 +101,48 @@ class TestConvolutionOperation(TestCase):
         ])
 
         conv.operate(data)
+
+
+class TestPoolOperation(TestCase):
+    def test_2d(self):
+        pool = layer.Pool(
+            size=2,
+            stride=2,
+            operation=layer.PoolOperation.MAX,
+        )
+
+        pool.operate(np.array([
+            [1, 1, 2, 4],
+            [5, 6, 7, 8],
+            [3, 2, 1, 0],
+            [1, 2, 3, 4],
+        ]))
+
+    def test_3d(self):
+        pool = layer.Pool(
+            size=2,
+            stride=2,
+            operation=layer.PoolOperation.MAX,
+        )
+
+        data = np.zeros((4, 4, 3))
+        data[:,:,0] = np.array([
+            [1, 1, 2, 4],
+            [5, 6, 7, 8],
+            [3, 2, 1, 0],
+            [1, 2, 3, 4],
+        ])
+        data[:,:,1] = np.array([
+            [1, 1, 2, 4],
+            [5, 6, 7, 8],
+            [3, 2, 1, 0],
+            [1, 2, 3, 4],
+        ])
+        data[:,:,2] = np.array([
+            [1, 1, 2, 4],
+            [5, 6, 7, 8],
+            [3, 2, 1, 0],
+            [1, 2, 3, 4],
+        ])
+
+        pool.operate(data)
