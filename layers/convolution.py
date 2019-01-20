@@ -32,6 +32,13 @@ class BaseConvolution(abc.ABC):
         # activation function
         self.activation = activation
 
+        if activation == ActivationType.RELU:
+            self.activation = Activation.relu
+        elif activation == ActivationType.SIGMOID:
+            self.activation = Activation.sigmoid
+        else:
+            raise Exception('Invalid activation function')
+
     @abc.abstractmethod
     def operate(self, data:np.ndarray) -> np.ndarray:
         raise NotImplementedError()
@@ -39,13 +46,6 @@ class BaseConvolution(abc.ABC):
 
 class WindowConvolution(BaseConvolution):
     def operate(self, data: np.ndarray) -> np.ndarray:
-        if self.activation == ActivationType.RELU:
-            activation = Activation.relu
-        elif self.activation == ActivationType.SIGMOID:
-            activation = Activation.sigmoid
-        else:
-            raise Exception('Invalid activation function')
-
         if len(data.shape) == 2:
             rows, columns = data.shape
         else:
@@ -74,7 +74,7 @@ class WindowConvolution(BaseConvolution):
                     column_offset = 0
                     for j in range(out_column_count):
                         window = data[row_offset:row_offset+self.size,column_offset:column_offset+self.size]
-                        output[i,j,k] = activation(np.sum(window * self.filters[0]) + self.biases[0])
+                        output[i,j,k] = self.activation(np.sum(window * self.filters[0]) + self.biases[0])
 
                         column_offset += self.stride
 
@@ -100,8 +100,7 @@ class WindowConvolution(BaseConvolution):
                             window = padded_layer[row_offset:row_offset+self.size,column_offset:column_offset+self.size]
                             total += np.sum(window * _filter[:,:,k])
 
-                        output[i,j,f] = total + bias
-                        # output[i,j,f] = activation(total)
+                        output[i,j,f] = self.activation(total + bias)
                         column_offset += self.stride
 
                     row_offset += self.stride
