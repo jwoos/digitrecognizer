@@ -14,41 +14,20 @@ class TestConvolutionInitialization(TestCase):
             'size': 3,
             'stride': 1,
             'padding': 1,
-            'activation': mock.Mock(),
+            'activation': layers.activation.ActivationType.RELU,
         }
         conv = layers.convolution.WindowConvolution(**args)
 
         for k, v in args.items():
             if k == 'filters' or k == 'biases':
                 self.assertTrue(np.array_equal(v, getattr(conv, k)))
+            elif k == 'activation':
+                self.assertEqual(getattr(conv, k), layers.activation.Activation.relu)
             else:
                 self.assertEqual(v, getattr(conv, k))
 
+
 class TestConvolutionOperation(TestCase):
-    def test_2d(self):
-        conv = layers.convolution.WindowConvolution(
-            filters=np.array([
-                [
-                    [0, 1, 1],
-                    [0, 1, 0],
-                    [-1, -1, 1],
-                ],
-            ]),
-            biases=[0],
-            size=3,
-            stride=2,
-            padding=1,
-            activation=layers.activation.ActivationType.RELU,
-        )
-
-        conv.operate(np.array([
-            [0, 0, 1, 2, 0],
-            [2, 0, 2, 0, 1],
-            [2, 2, 2, 0, 0],
-            [1, 2, 1, 0, 0],
-            [1, 2, 0, 2, 2],
-        ]))
-
     def test_3d(self):
         filter1 = np.zeros((3, 3, 3))
         filter1[:,:,0] = np.array([
