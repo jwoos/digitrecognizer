@@ -12,17 +12,14 @@ from layers.activation import ActivationType, Activation
 class BaseConvolution(abc.ABC):
     def __init__(
         self,
-        filters: np.ndarray,
-        biases: np.ndarray,
         size: int,
+        count: int,
         stride: int,
         padding: int,
+        filters: np.ndarray=None,
+        biases: np.ndarray=None,
         activation: ActivationType=ActivationType.RELU,
     ):
-        # array of filters
-        self.filters = filters
-        # biases per filter
-        self.biases = biases
         # filter is a square - (self.size, self.size)
         self.size = size
         # how many pixels to move over
@@ -31,6 +28,14 @@ class BaseConvolution(abc.ABC):
         self.padding = padding
         # activation function
         self.activation = activation
+        # biases per filter
+        self.biases = biases
+
+        # array of filters
+        if filters is None:
+            self.filters = np.random.randn(self.size, self.size, self.count)
+        else:
+            self.filters = filters
 
         if activation == ActivationType.RELU:
             self.activation = Activation.relu
@@ -62,7 +67,8 @@ class WindowConvolution(BaseConvolution):
 
         # for each filter
         for f, _filter in enumerate(self.filters):
-            bias = self.biases[f]
+            if self.biases:
+                bias = self.biases[f]
 
             # for each row
             for i in range(out_row_count):
