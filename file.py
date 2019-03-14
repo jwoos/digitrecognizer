@@ -39,7 +39,8 @@ def read_images(path: str) -> np.ndarray:
     # remove header information
     data = data[16:]
 
-    images = np.zeros((item_count, row_count, column_count))
+    channels = 1
+    images = np.zeros((item_count, row_count, column_count, channels))
 
     for i in range(item_count):
         image = images[i]
@@ -47,7 +48,7 @@ def read_images(path: str) -> np.ndarray:
 
         for row in range(row_count):
             offset = base + (column_count * row)
-            image[row][:column_count] = list(data[offset:offset+column_count])
+            image[row][:column_count][0] = list(data[offset:offset+column_count])
 
     return images
 

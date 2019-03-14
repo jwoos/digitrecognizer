@@ -49,7 +49,7 @@ class WindowConvolution(BaseConvolution):
         if len(data.shape) != 3:
             raise Exception('Expected a 3 dimensional matrix')
 
-        rows, columns, _ = data.shape
+        rows, columns, channels = data.shape
 
         out_row_count = math.ceil((rows - self.size + 2 * self.padding) / self.stride + 1)
         out_column_count = math.ceil((columns - self.size + 2 * self.padding) / self.stride + 1)
@@ -72,7 +72,7 @@ class WindowConvolution(BaseConvolution):
                 for j in range(out_column_count):
                     total = 0
 
-                    for k in range(data.shape[2]):
+                    for k in range(channels):
                         # for each layer
                         padded_layer = np.pad(data[:,:,k], self.padding, 'constant')
                         window = padded_layer[row_offset:row_offset+self.size,column_offset:column_offset+self.size]

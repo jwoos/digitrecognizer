@@ -28,3 +28,7 @@ class FC:
             raise Exception('Expected a 2 dimensional flat matrix')
 
         return self.activation(np.dot(data, self.weights) + self.biases)
+
+
+class Output(FC):
+    pass
