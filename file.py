@@ -9,8 +9,8 @@ import numpy as np
 
 
 Data = namedtuple('Data', [
-    'labels',
     'images',
+    'labels',
 ])
 
 
@@ -43,12 +43,12 @@ def read_images(path: str) -> np.ndarray:
     images = np.zeros((item_count, row_count, column_count, channels))
 
     for i in range(item_count):
-        image = images[i]
+        image = images[i][:,:,0]
         base = i * row_count * column_count
 
         for row in range(row_count):
             offset = base + (column_count * row)
-            image[row][:column_count][0] = list(data[offset:offset+column_count])
+            image[row][:column_count] = list(data[offset:offset+column_count])
 
     return images
 
@@ -59,6 +59,6 @@ def read_data(operation: str='TRAINING') -> Data:
         images = read_images('data/train-images-idx3-ubyte')
     else:
         labels = read_labels('data/t10k-labels-idx1-ubyte')
-        images = read_labels('data/t10k-images-idx3-ubyte')
+        images = read_images('data/t10k-images-idx3-ubyte')
 
     return Data(labels=labels, images=images)
