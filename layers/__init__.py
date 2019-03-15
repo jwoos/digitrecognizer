@@ -1,5 +1,6 @@
 __all__ = [
     'activation',
+    'base',
     'convolution',
     'fully_connected',
     'loss',
@@ -8,6 +9,7 @@ __all__ = [
 ]
 
 from layers import activation
+from layers import base
 from layers import convolution
 from layers import fully_connected
 from layers import loss

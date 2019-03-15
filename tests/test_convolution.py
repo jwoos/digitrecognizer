@@ -7,24 +7,68 @@ import pytest
 
 
 class TestConvolutionInitialization(TestCase):
-    def test_works(self):
+    def test_constructor(self):
         args = {
-            'filters': np.zeros((1, 3, 3)),
-            'biases': np.zeros((3,)),
+            'units': 3,
             'size': 3,
             'stride': 1,
             'padding': 1,
-            'activation': layers.activation.relu,
         }
         conv = layers.convolution.WindowConvolution(**args)
 
         for k, v in args.items():
-            if k == 'filters' or k == 'biases':
-                self.assertTrue(np.array_equal(v, getattr(conv, k)))
-            elif k == 'activation':
-                self.assertEqual(getattr(conv, k), layers.activation.Activation.relu)
-            else:
-                self.assertEqual(v, getattr(conv, k))
+            self.assertEqual(v, getattr(conv, k))
+
+        not_none_attrs = (
+            'units',
+            'initialize_weights',
+            'initialize_biases',
+        )
+        for x in not_none_attrs:
+            self.assertIsNotNone(getattr(conv, x))
+
+        none_attrs = (
+            'weights',
+            'biases',
+            'input_shape',
+            'output_shape',
+        )
+        for x in none_attrs:
+            self.assertIsNone(getattr(conv, x))
+
+    def test_initialization(self):
+        input_shape = (28, 28, 3)
+        output_shape = (28, 28, 10)
+
+        conv = layers.convolution.WindowConvolution(
+            units=10,
+            size=3,
+            stride=1,
+            padding=1,
+            use_biases=False,
+        )
+        conv.initialize(input_shape=input_shape)
+
+        self.assertEqual(conv.input_shape, input_shape)
+        self.assertIsNotNone(conv.output_shape, output_shape)
+        self.assertTrue(np.array_equal(conv.biases, np.zeros(10)))
+
+    def test_initialization_with_bias(self):
+        input_shape = (28, 28, 3)
+        output_shape = (28, 28, 10)
+
+        conv = layers.convolution.WindowConvolution(
+            units=10,
+            size=3,
+            stride=1,
+            padding=1,
+            use_biases=True,
+        )
+        conv.initialize(input_shape=input_shape)
+
+        self.assertEqual(conv.input_shape, input_shape)
+        self.assertIsNotNone(conv.output_shape, output_shape)
+        self.assertFalse(np.array_equal(conv.biases, np.zeros(10)))
 
 
 class TestConvolutionOperation(TestCase):

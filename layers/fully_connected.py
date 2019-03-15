@@ -1,37 +1,24 @@
-from typing import Callable
+from typing import Callable, Tuple
 
-from layers import activation
+from layers import activation, base
 
 import numpy as np
 
 
-class FC:
-    def __init__(
-        self,
-        input_size: int,
-        size: int,
-        biases: np.ndarray=None,
-        weights: np.ndarray=None,
-        activation: Callable[[np.ndarray], np.ndarray]=activation.relu,
-    ):
-        self.input_size = input_size
-        self.size = size
-        self.biases = biases
-        self.activation = activation
-        if weights is None:
-            self.weights = np.random.randn(input_size, size)
-        else:
-            self.weights = weights
+class FC(base.BaseLayer):
+    def initialize(self, input_shape: Tuple[int]) -> None:
+        super().initialize(input_shape)
 
-    def operate(self, data: np.ndarray) -> np.ndarray:
-        if len(data.shape) != 2 and data.shape[0] != 1:
-            raise Exception('Expected a 2 dimensional flat matrix')
+        self.weights = self.initialize_weights(input_shape[0], output_shape[0])
+        self.biases = self.initialize_biases(output_shape[0])
 
-        if self.biases:
-            return self.activation(np.dot(data, self.weights) + self.biases)
-        else:
-            return self.activation(np.dot(data, self.weights))
+    def forward(self, data: np.ndarray) -> np.ndarray:
+        output = np.dot(data, self.weights) + self.biases
 
+        return output
 
-class Output(FC):
-    pass
+    def backward(self):
+        raise NotImplementedError()
+
+    def infer_output_shape(self, input_shape: Tuple[int]) -> Tuple[int]:
+        return (self.units,)

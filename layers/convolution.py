@@ -3,67 +3,60 @@ CNN Layer - supports 2D and 3D inputs
 '''
 import abc
 import math
-from typing import Callable
+from typing import Callable, Tuple, Union
+
+from layers import base
 
 import numpy as np
 
-from layers import activation
 
-
-class BaseConvolution(abc.ABC):
+class BaseConvolution(base.BaseLayer):
     def __init__(
         self,
+        units: int,
         size: int,
-        count: int,
         stride: int,
         padding: int,
-        filters: np.ndarray=None,
-        biases: np.ndarray=None,
-        activation: Callable[[np.ndarray], np.ndarray]=activation.relu,
+        **kwargs,
     ):
-        # filter is a square - (self.size, self.size)
+        super().__init__(units, **kwargs)
+
+        # how big the kernel is
         self.size = size
         # how many pixels to move over
         self.stride = stride
         # zero pad the input to keep the original size
         self.padding = padding
-        # activation function
-        self.activation = activation
-        # biases per filter
-        self.biases = biases
 
-        # array of filters
-        if filters is None:
-            self.filters = np.random.randn(self.size, self.size, self.count)
-        else:
-            self.filters = filters
+    def initialize(self, input_shape: Tuple[int, int, int]) -> None:
+        super().initialize(input_shape)
 
-    @abc.abstractmethod
-    def operate(self, data:np.ndarray) -> np.ndarray:
-        raise NotImplementedError()
+        self.weights = self.initialize_weights(self.units, self.size, self.size, input_shape[2])
+        self.biases = self.initialize_biases(self.units)
+
+    def infer_output_shape(self, input_shape: Tuple[int, int, int]) -> Tuple[int, int, int]:
+        rows, columns, channels = input_shape
+
+        return (
+            math.ceil((rows - self.size + 2 * self.padding) / self.stride + 1),
+            math.ceil((columns - self.size + 2 * self.padding) / self.stride + 1),
+            self.units,
+        )
 
 
 class WindowConvolution(BaseConvolution):
-    def operate(self, data: np.ndarray) -> np.ndarray:
+    def forward(self, data: np.ndarray) -> np.ndarray:
         if len(data.shape) != 3:
             raise Exception('Expected a 3 dimensional matrix')
 
-        rows, columns, channels = data.shape
-
-        out_row_count = math.ceil((rows - self.size + 2 * self.padding) / self.stride + 1)
-        out_column_count = math.ceil((columns - self.size + 2 * self.padding) / self.stride + 1)
-        out_depth_count = self.filters.shape[0]
-
+        out_row_count, out_column_count, out_depth_count = self.output_shape
         output = np.zeros((out_row_count, out_column_count, out_depth_count))
 
         row_offset = 0
         column_offset = 0
 
         # for each filter
-        for f, _filter in enumerate(self.filters):
-            if self.biases:
-                bias = self.biases[f]
-
+        for f, _filter in enumerate(self.weights):
             # for each row
             for i in range(out_row_count):
                 # for each column
@@ -78,16 +71,21 @@ class WindowConvolution(BaseConvolution):
                         window = padded_layer[row_offset:row_offset+self.size,column_offset:column_offset+self.size]
                         total += np.sum(window * _filter[:,:,k])
 
-                    output[i,j,f] = total + bias
+                    output[i,j,f] = total + self.biases[f]
                     column_offset += self.stride
 
                 row_offset += self.stride
 
-        return self.activation(output)
+        return output
+
+    def backward(self):
+        raise NotImplementedError()
 
 
 # Matrix Math convolution using Toeplitz matrices
 class MMConvolution(BaseConvolution):
-    @abc.abstractmethod
-    def operate(self, data: np.ndarray) -> np.ndarray:
+    def forward(self, data: np.ndarray) -> np.ndarray:
+        raise NotImplementedError()
+
+    def backward(self):
         raise NotImplementedError()
