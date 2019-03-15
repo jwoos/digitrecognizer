@@ -106,9 +106,20 @@ def custom(training_data, validation_data):
             stride=2,
             operation=layers.pool.PoolOperation.MAX,
         ),
-        layer.fully_connected.FC(),
-        layer.fully_connected.FC(),
-        layer.fully_connected.Output(),
+        layer.fully_connected.FC(
+            input_size=7,
+            size=100,
+            biases=None,
+            weights=np.random.randn((7, 100)),
+            activation=layers.activation.ActivationType.RELU,
+        ),
+        layer.fully_connected.Output(
+            input_size=100,
+            size=10,
+            biases=None,
+            weights=np.random.randn((100, 10)),
+            activation=layers.activation.ActivationType.SOFTMAX,
+        ),
     ]
 
 
