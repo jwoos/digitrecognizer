@@ -1,9 +1,9 @@
 from unittest import TestCase, mock
 
+import layers
+
 import numpy as np
 import pytest
-
-import layers
 
 
 class TestConvolutionInitialization(TestCase):
@@ -14,7 +14,7 @@ class TestConvolutionInitialization(TestCase):
             'size': 3,
             'stride': 1,
             'padding': 1,
-            'activation': layers.activation.ActivationType.RELU,
+            'activation': layers.activation.relu,
         }
         conv = layers.convolution.WindowConvolution(**args)
 
@@ -53,7 +53,7 @@ class TestConvolutionOperation(TestCase):
             size=3,
             stride=2,
             padding=1,
-            activation=layers.activation.ActivationType.RELU,
+            activation=layers.activation.relu,
         )
 
         data = np.zeros((5, 5, 3))

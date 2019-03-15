@@ -17,16 +17,15 @@ class Pool:
         # how many pixels to move over
         self.stride = stride
         # which pooling operation should be done
-        self.operation = operation
 
-        if self.operation == PoolOperation.AVERAGE:
-            operation = np.mean
+        if operation == PoolOperation.AVERAGE:
+            self.operation = np.mean
 
-        elif self.operation == PoolOperation.SUM:
-            operation = np.sum
+        elif operation == PoolOperation.SUM:
+            self.operation = np.sum
 
-        elif self.operation == PoolOperation.MAX:
-            operation = np.amax
+        elif operation == PoolOperation.MAX:
+            self.operation = np.amax
 
         else:
             raise Exception('Invalid operation type')
@@ -52,7 +51,7 @@ class Pool:
             for j in range(out_column_count):
                 for k in range(out_depth_count):
                     window = data[row_offset:row_offset+self.size,column_offset:column_offset+self.size, k]
-                    output[i,j,k] = operation(window)
+                    output[i,j,k] = self.operation(window)
 
                 column_offset += self.stride
 

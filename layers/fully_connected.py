@@ -1,6 +1,8 @@
-import numpy as np
+from typing import Callable
 
-from layers.activation import ActivationType, Activation
+from layers import activation
+
+import numpy as np
 
 
 class FC:
@@ -10,24 +12,16 @@ class FC:
         size: int,
         biases: np.ndarray=None,
         weights: np.ndarray=None,
-        activation: ActivationType=ActivationType.RELU,
+        activation: Callable[[np.ndarray], np.ndarray]=activation.relu,
     ):
         self.input_size = input_size
         self.size = size
         self.biases = biases
+        self.activation = activation
         if weights is None:
             self.weights = np.random.randn(input_size, size)
         else:
             self.weights = weights
-
-        if activation == ActivationType.RELU:
-            self.activation = Activation.relu
-        elif activation == ActivationType.SIGMOID:
-            self.activation = Activation.sigmoid
-        elif activation == ActivationType.SOFTMAX:
-            self.activation = Activation.softmax
-        else:
-            raise Exception('Invalid activation function')
 
     def operate(self, data: np.ndarray) -> np.ndarray:
         if len(data.shape) != 2 and data.shape[0] != 1:

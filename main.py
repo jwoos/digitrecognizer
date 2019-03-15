@@ -91,7 +91,7 @@ def custom(training_data, validation_data):
             size=image_width,
             stride=1,
             padding=1,
-            activation=layers.activation.ActivationType.RELU,
+            activation=layers.activation.relu,
         ),
         layer.convolution.WindowConvolution(
             filters=np.random.randn(3, 3, 3),
@@ -99,7 +99,7 @@ def custom(training_data, validation_data):
             size=image_width,
             stride=1,
             padding=1,
-            activation=layers.activation.ActivationType.RELU,
+            activation=layers.activation.relu,
         ),
         layer.pool.Pool(
             size=2,
@@ -111,14 +111,14 @@ def custom(training_data, validation_data):
             size=100,
             biases=None,
             weights=np.random.randn((7, 100)),
-            activation=layers.activation.ActivationType.RELU,
+            activation=layers.activation.relu,
         ),
         layer.fully_connected.Output(
             input_size=100,
             size=10,
             biases=None,
             weights=np.random.randn((100, 10)),
-            activation=layers.activation.ActivationType.SOFTMAX,
+            activation=layers.activation.softmax,
         ),
     ]
 

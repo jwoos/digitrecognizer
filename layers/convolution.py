@@ -3,10 +3,11 @@ CNN Layer - supports 2D and 3D inputs
 '''
 import abc
 import math
+from typing import Callable
 
 import numpy as np
 
-from layers.activation import ActivationType, Activation
+from layers import activation
 
 
 class BaseConvolution(abc.ABC):
@@ -18,7 +19,7 @@ class BaseConvolution(abc.ABC):
         padding: int,
         filters: np.ndarray=None,
         biases: np.ndarray=None,
-        activation: ActivationType=ActivationType.RELU,
+        activation: Callable[[np.ndarray], np.ndarray]=activation.relu,
     ):
         # filter is a square - (self.size, self.size)
         self.size = size
@@ -36,13 +37,6 @@ class BaseConvolution(abc.ABC):
             self.filters = np.random.randn(self.size, self.size, self.count)
         else:
             self.filters = filters
-
-        if activation == ActivationType.RELU:
-            self.activation = Activation.relu
-        elif activation == ActivationType.SIGMOID:
-            self.activation = Activation.sigmoid
-        else:
-            raise Exception('Invalid activation function')
 
     @abc.abstractmethod
     def operate(self, data:np.ndarray) -> np.ndarray:
