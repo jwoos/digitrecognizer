@@ -84,12 +84,12 @@ class WindowConvolution(BaseConvolution):
                         window = padded_layer[row_offset:row_offset+self.size,column_offset:column_offset+self.size]
                         total += np.sum(window * _filter[:,:,k])
 
-                    output[i,j,f] = self.activation(total + bias)
+                    output[i,j,f] = total + bias
                     column_offset += self.stride
 
                 row_offset += self.stride
 
-        return output
+        return self.activation(output)
 
 
 # Matrix Math convolution using Toeplitz matrices

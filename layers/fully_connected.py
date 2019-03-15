@@ -24,6 +24,8 @@ class FC:
             self.activation = Activation.relu
         elif activation == ActivationType.SIGMOID:
             self.activation = Activation.sigmoid
+        elif activation == ActivationType.SOFTMAX:
+            self.activation = Activation.softmax
         else:
             raise Exception('Invalid activation function')
 

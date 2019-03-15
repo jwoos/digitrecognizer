@@ -6,21 +6,31 @@ import numpy as np
 class ActivationType(Enum):
     RELU = auto()
     SIGMOID = auto()
+    SOFTMAX = auto()
 
 
 class Activation:
     @staticmethod
-    def relu(data: float) -> float:
-        return max(0, data)
+    def relu(data: np.ndarray, derivative=False) -> np.ndarray:
+        if not derivative:
+            data[data < 0] = 0
+            return data
 
-    def relu_array(data: np.ndarray) -> np.ndarray:
-        data[data < 0] = 0
-        return data
-
-    @staticmethod
-    def sigmoid(data: float) -> float:
-        pass
+        else:
+            raise NotImplementedError()
 
     @staticmethod
-    def sigmoid_array(data: np.ndarray) -> np.ndarray:
-        pass
+    def sigmoid(data: np.ndarray, derivative=False) -> np.ndarray:
+        if not derivative:
+            return 1 / (1 + np.exp(-data))
+
+        else:
+            raise NotImplementedError()
+
+    @staticmethod
+    def softmax(data: float, derivative=False) -> float:
+        if not derivative:
+            return np.exp(data) / sum(np.exp(data))
+
+        else:
+            raise NotImplementedError()
