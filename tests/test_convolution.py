@@ -71,101 +71,152 @@ class TestConvolutionInitialization(TestCase):
         self.assertFalse(np.array_equal(conv.biases, np.zeros(10)))
 
 
-class TestConvolutionOperation(TestCase):
-    def test_3d(self):
+class TestConvolutionForward(TestCase):
+    def test_one_filter(self):
         filter1 = np.zeros((3, 3, 3))
         filter1[:,:,0] = np.array([
             [0, 1, 1],
-            [0, 0, 0],
-            [-1, -1, 0],
+            [1, -1, 1],
+            [0, 0, 1],
         ])
         filter1[:,:,1] = np.array([
-            [0, 0, -1],
-            [-1, -1, 0],
+            [-1, -1, -1],
+            [0, 1, -1],
             [1, 1, 1],
         ])
         filter1[:,:,2] = np.array([
-            [-1, -1, 0],
-            [1, 0, 1],
-            [1, 0, 0],
+            [0, 1, -1],
+            [1, 1, -1],
+            [-1, 1, -1],
         ])
         conv = layers.convolution.WindowConvolution(
-            filters=np.array([
-                filter1
-            ]),
-            biases=[1],
+            units=1,
             size=3,
             stride=2,
             padding=1,
-            activation=layers.activation.relu,
+            use_biases=True,
         )
+        conv.initialize((5, 5, 3))
+        conv.weights[0] = filter1
+        conv.biases[0] = 1
 
         data = np.zeros((5, 5, 3))
         data[:,:,0] = np.array([
-            [0, 0, 1, 2, 0],
-            [2, 0, 2, 0, 1],
-            [2, 2, 2, 0, 0],
-            [1, 2, 1, 0, 0],
-            [1, 2, 0, 2, 2],
-        ])
-        data[:,:,1] = np.array([
-            [0, 1, 0, 2, 1],
-            [2, 2, 0, 1, 0],
-            [0, 1, 1, 0, 0],
+            [1, 2, 2, 0, 1],
+            [0, 1, 0, 2, 2],
+            [0, 0, 1, 1, 2],
+            [1, 2, 2, 0, 0],
             [2, 2, 0, 1, 1],
-            [1, 0, 2, 0, 0],
-        ])
-        data[:,:,2] = np.array([
-            [1, 1, 2, 2, 1],
-            [0, 0, 1, 2, 0],
-            [2, 1, 0, 2, 1],
-            [2, 0, 0, 0, 0],
-            [2, 1, 2, 0, 1],
-        ])
-
-        conv.operate(data)
-
-
-class TestPoolOperation(TestCase):
-    def test_2d(self):
-        pool = layers.pool.Pool(
-            size=2,
-            stride=2,
-            operation=layers.pool.PoolOperation.MAX,
-        )
-
-        pool.operate(np.array([
-            [1, 1, 2, 4],
-            [5, 6, 7, 8],
-            [3, 2, 1, 0],
-            [1, 2, 3, 4],
-        ]))
-
-    def test_3d(self):
-        pool = layers.pool.Pool(
-            size=2,
-            stride=2,
-            operation=layers.pool.PoolOperation.MAX,
-        )
-
-        data = np.zeros((4, 4, 3))
-        data[:,:,0] = np.array([
-            [1, 1, 2, 4],
-            [5, 6, 7, 8],
-            [3, 2, 1, 0],
-            [1, 2, 3, 4],
         ])
         data[:,:,1] = np.array([
-            [1, 1, 2, 4],
-            [5, 6, 7, 8],
-            [3, 2, 1, 0],
-            [1, 2, 3, 4],
+            [0, 2, 1, 2, 1],
+            [1, 1, 1, 2, 0],
+            [2, 0, 2, 0, 0],
+            [1, 1, 0, 1, 2],
+            [1, 1, 0, 2, 1],
         ])
         data[:,:,2] = np.array([
-            [1, 1, 2, 4],
-            [5, 6, 7, 8],
-            [3, 2, 1, 0],
-            [1, 2, 3, 4],
+            [1, 2, 1, 1, 1],
+            [1, 1, 2, 1, 0],
+            [0, 1, 2, 2, 0],
+            [2, 2, 0, 0, 1],
+            [1, 0, 1, 0, 0],
         ])
 
-        pool.operate(data)
+        result = conv.forward(data)
+
+        expected = np.zeros((3, 3, 1))
+        expected[:,:,0] = np.array([
+            [2, 8, 4],
+            [5, 3, 6],
+            [3, 3, 0],
+        ])
+
+        self.assertTrue(np.array_equal(result, expected))
+
+    def test_two_filter(self):
+        filter1 = np.zeros((3, 3, 3))
+        filter1[:,:,0] = np.array([
+            [0, 1, 1],
+            [1, -1, 1],
+            [0, 0, 1],
+        ])
+        filter1[:,:,1] = np.array([
+            [-1, -1, -1],
+            [0, 1, -1],
+            [1, 1, 1],
+        ])
+        filter1[:,:,2] = np.array([
+            [0, 1, -1],
+            [1, 1, -1],
+            [-1, 1, -1],
+        ])
+
+        filter2 = np.zeros((3, 3, 3))
+        filter2[:,:,0] = np.array([
+            [0, 1, 0],
+            [0, -1, -1],
+            [0, 1, 1],
+        ])
+        filter2[:,:,1] = np.array([
+            [-1, 1, 0],
+            [0, 1, 0],
+            [0, 1, 0],
+        ])
+        filter2[:,:,2] = np.array([
+            [0, 0, 1],
+            [1, -1, 0],
+            [0, 0, -1],
+        ])
+
+        conv = layers.convolution.WindowConvolution(
+            units=2,
+            size=3,
+            stride=2,
+            padding=1,
+            use_biases=True,
+        )
+        conv.initialize((5, 5, 3))
+        conv.weights[0] = filter1
+        conv.weights[1] = filter2
+        conv.biases[0] = 1
+        conv.biases[1] = 0
+
+        data = np.zeros((5, 5, 3))
+        data[:,:,0] = np.array([
+            [1, 2, 2, 0, 1],
+            [0, 1, 0, 2, 2],
+            [0, 0, 1, 1, 2],
+            [1, 2, 2, 0, 0],
+            [2, 2, 0, 1, 1],
+        ])
+        data[:,:,1] = np.array([
+            [0, 2, 1, 2, 1],
+            [1, 1, 1, 2, 0],
+            [2, 0, 2, 0, 0],
+            [1, 1, 0, 1, 2],
+            [1, 1, 0, 2, 1],
+        ])
+        data[:,:,2] = np.array([
+            [1, 2, 1, 1, 1],
+            [1, 1, 2, 1, 0],
+            [0, 1, 2, 2, 0],
+            [2, 2, 0, 0, 1],
+            [1, 0, 1, 0, 0],
+        ])
+
+        result = conv.forward(data)
+
+        expected = np.zeros((3, 3, 2))
+        expected[:,:,0] = np.array([
+            [2, 8, 4],
+            [5, 3, 6],
+            [3, 3, 0],
+        ])
+        expected[:,:,1] = np.array([
+            [-3, 2, 2],
+            [6, 2, 2],
+            [0, -1, 1],
+        ])
+
+        self.assertTrue(np.array_equal(result, expected))

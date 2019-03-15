@@ -51,6 +51,7 @@ class WindowConvolution(BaseConvolution):
 
         out_row_count, out_column_count, out_depth_count = self.output_shape
         output = np.zeros((out_row_count, out_column_count, out_depth_count))
+        channels = data.shape[2]
 
         row_offset = 0
         column_offset = 0
@@ -58,6 +59,8 @@ class WindowConvolution(BaseConvolution):
         # for each filter
         for f, _filter in enumerate(self.weights):
             # for each row
+            row_offset = 0
+
             for i in range(out_row_count):
                 # for each column
                 column_offset = 0
