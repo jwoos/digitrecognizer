@@ -28,7 +28,7 @@ class Activation:
             raise NotImplementedError()
 
     @staticmethod
-    def softmax(data: float, derivative=False) -> float:
+    def softmax(data: float, derivative=False) -> np.ndarray:
         if not derivative:
             return np.exp(data) / sum(np.exp(data))
 
