@@ -9,8 +9,8 @@ class FC(base.BaseLayer):
     def initialize(self, input_shape: Tuple[int]) -> None:
         super().initialize(input_shape)
 
-        self.weights = self.initialize_weights(input_shape[0], output_shape[0])
-        self.biases = self.initialize_biases(output_shape[0])
+        self.weights = self.initialize_weights(self.input_shape[0], self.output_shape[0])
+        self.biases = self.initialize_biases(self.output_shape[0])
 
     def forward(self, data: np.ndarray) -> np.ndarray:
         output = np.dot(data, self.weights) + self.biases
