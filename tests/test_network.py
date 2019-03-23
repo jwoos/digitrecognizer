@@ -14,7 +14,7 @@ class TestNetworkInitialization(TestCase):
             'epochs': 0,
             'learning_rate': 0.01,
             'loss': layers.loss.cross_entropy,
-            'optimization': layers.optimization.gradient_descent,
+            'optimization': layers.optimization.stochastic_gradient_descent,
         }
 
         network = Network(**args)
@@ -38,7 +38,7 @@ class TestNetworkInitialization(TestCase):
             epochs=0,
             learning_rate=0,
             loss=layers.loss.cross_entropy,
-            optimization=layers.optimization.gradient_descent,
+            optimization=layers.optimization.stochastic_gradient_descent,
         )
 
         network.initialize((28, 28, 3))

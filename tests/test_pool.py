@@ -6,26 +6,12 @@ import numpy as np
 import pytest
 
 
-class TestPoolOperation(TestCase):
-    def test_2d(self):
+class TestPoolForward(TestCase):
+    def test_max(self):
         pool = layers.pool.Pool(
             size=2,
             stride=2,
-            operation=layers.pool.PoolOperation.MAX,
-        )
-
-        pool.operate(np.array([
-            [1, 1, 2, 4],
-            [5, 6, 7, 8],
-            [3, 2, 1, 0],
-            [1, 2, 3, 4],
-        ]))
-
-    def test_3d(self):
-        pool = layers.pool.Pool(
-            size=2,
-            stride=2,
-            operation=layers.pool.PoolOperation.MAX,
+            operation=np.max,
         )
 
         data = np.zeros((4, 4, 3))
@@ -48,4 +34,17 @@ class TestPoolOperation(TestCase):
             [1, 2, 3, 4],
         ])
 
-        conv.operate(data)
+        result = pool.forward(data)
+        expected = np.zeros((2, 2, 3))
+        expected[:,:,0] = np.array([
+            [6, 8],
+            [3, 4],
+        ])
+        expected[:,:,1] = np.array([
+            [6, 8],
+            [3, 4],
+        ])
+        expected[:,:,2] = np.array([
+            [6, 8],
+            [3, 4],
+        ])

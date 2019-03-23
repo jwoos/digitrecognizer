@@ -8,15 +8,13 @@ import numpy as np
 
 class Flatten(base.BaseLayer):
     def __init__(self):
-        super().__init__(
-            units=1,
-            initialize_weights=utils.zeros,
-            use_biases=False,
-            initialize_biases=utils.zeros,
-        )
+        super().__init__(units=1)
 
     def initialize(self, input_shape: Tuple[int, int, int]):
         super().initialize(input_shape)
+
+        self.weights = None
+        self.biases = None
 
     def forward(self, data: np.ndarray) -> np.ndarray:
         return data.flatten()

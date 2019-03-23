@@ -1,36 +1,30 @@
-from enum import Enum, auto
+from typing import Callable, Tuple
 import math
+
+from layers import base
+import utils
 
 import numpy as np
 
 
-class PoolOperation(Enum):
-    MAX = auto()
-    AVERAGE = auto()
-    SUM = auto()
+class Pool(base.BaseLayer):
+    def __init__(self, size: int, stride: int, operation: Callable[..., float]=np.max, **kwargs):
+        super().__init__(units=1)
 
-
-class Pool:
-    def __init__(self, size: int, stride: int, operation: PoolOperation=PoolOperation.AVERAGE):
         # pooling window is a square - (self.size, self.size)
         self.size = size
         # how many pixels to move over
         self.stride = stride
         # which pooling operation should be done
+        self.operation = operation
 
-        if operation == PoolOperation.AVERAGE:
-            self.operation = np.mean
+    def initialize(self, input_shape: Tuple[int, int, int]):
+        super().initialize(input_shape)
 
-        elif operation == PoolOperation.SUM:
-            self.operation = np.sum
+        self.weights = None
+        self.biases = None
 
-        elif operation == PoolOperation.MAX:
-            self.operation = np.amax
-
-        else:
-            raise Exception('Invalid operation type')
-
-    def operate(self, data: np.ndarray) -> np.ndarray:
+    def forward(self, data: np.ndarray) -> np.ndarray:
         if len(data.shape) != 3:
             raise Exception('Expected a 3 dimensional matrix')
 
@@ -58,3 +52,10 @@ class Pool:
             row_offset += self.stride
 
         return output
+
+    def backward(self, data: np.ndarray, output: np.ndarray, delta: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        raise NotImplementedError()
+
+    def infer_output_shape(self, input_shape: Tuple[int, int, int]) -> Tuple[int, int, int]:
+        rows, columns, channels = input_shape.shape()
+        return ((rows - self.size) / self.stride + 1, (columns - self.size) / self.stride + 1, channels)

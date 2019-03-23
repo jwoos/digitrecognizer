@@ -213,10 +213,15 @@ class TestConvolutionForward(TestCase):
             [5, 3, 6],
             [3, 3, 0],
         ])
+        # expected[:,:,1] = np.array([
+            # [-3, 2, 2],
+            # [6, 2, 2],
+            # [0, -1, 1],
+        # ])
         expected[:,:,1] = np.array([
-            [-3, 2, 2],
+            [0, 2, 2],
             [6, 2, 2],
-            [0, -1, 1],
+            [0, 0, 1],
         ])
 
         self.assertTrue(np.array_equal(result, expected))
