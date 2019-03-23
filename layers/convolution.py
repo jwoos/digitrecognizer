@@ -79,7 +79,7 @@ class WindowConvolution(BaseConvolution):
 
                 row_offset += self.stride
 
-        return output
+        return self.activation(output)
 
     def backward(self):
         raise NotImplementedError()

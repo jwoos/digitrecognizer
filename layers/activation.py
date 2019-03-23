@@ -7,14 +7,16 @@ def relu(data: np.ndarray, derivative=False) -> np.ndarray:
         return data
 
     else:
-        raise NotImplementedError()
+        data[data == 0] = 0
+        data[data > 0] = 1
+        return data
 
 def sigmoid(data: np.ndarray, derivative=False) -> np.ndarray:
     if not derivative:
         return 1 / (1 + np.exp(-data))
 
     else:
-        raise NotImplementedError()
+        return data * (1 - data)
 
 def softmax(data: float, derivative=False) -> np.ndarray:
     if not derivative:
