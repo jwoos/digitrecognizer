@@ -53,6 +53,13 @@ class WindowConvolution(BaseConvolution):
         output = np.zeros((out_row_count, out_column_count, out_depth_count))
         channels = data.shape[2]
 
+        padded_data = np.pad(
+            data,
+            pad_width=((self.padding, self.padding), (self.padding, self.padding), (0, 0)),
+            mode='constant',
+            constant_values=0,
+        )
+
         row_offset = 0
         column_offset = 0
 
@@ -68,13 +75,8 @@ class WindowConvolution(BaseConvolution):
                 for j in range(out_column_count):
                     total = 0
 
-                    for k in range(channels):
-                        # for each layer
-                        padded_layer = np.pad(data[:,:,k], self.padding, 'constant')
-                        window = padded_layer[row_offset:row_offset+self.size,column_offset:column_offset+self.size]
-                        total += np.sum(window * _filter[:,:,k])
+                    output[i,j,f] = np.sum(padded_data[row_offset:row_offset+self.size,column_offset:column_offset+self.size,:] * _filter) + self.biases[f]
 
-                    output[i,j,f] = total + self.biases[f]
                     column_offset += self.stride
 
                 row_offset += self.stride
