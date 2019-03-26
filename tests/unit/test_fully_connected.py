@@ -76,3 +76,47 @@ class TestFullyConnectedForward(TestCase):
         expected = np.array([10])
 
         self.assertTrue(np.array_equal(result, expected))
+
+
+# class TestFullyConnectedBackward(TestCase):
+    # def test_same_shape(self):
+        # fc = layers.fully_connected.FC(10)
+        # fc.initialize((10,))
+
+        # data = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+        # fc.weights = np.zeros((10, 10))
+        # fc.weights[:,0] = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+
+        # result = fc.forward(data)
+
+        # expected = np.array([10, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+        # self.assertTrue(np.array_equal(result, expected))
+
+    # def test_small_big(self):
+        # fc = layers.fully_connected.FC(10)
+        # fc.initialize((1,))
+
+        # data = np.array([1])
+        # fc.weights = np.zeros((1, 10))
+        # fc.weights[0,:] = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+
+        # result = fc.forward(data)
+
+        # expected = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+
+        # self.assertTrue(np.array_equal(result, expected))
+
+    # def test_big_small(self):
+        # fc = layers.fully_connected.FC(1)
+        # fc.initialize((10,))
+
+        # data = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+        # fc.weights = np.zeros((10, 1))
+        # fc.weights[:,0] = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+
+        # result = fc.forward(data)
+
+        # expected = np.array([10])
+
+        # self.assertTrue(np.array_equal(result, expected))
