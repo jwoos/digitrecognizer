@@ -51,7 +51,6 @@ class WindowConvolution(BaseConvolution):
 
         out_row_count, out_column_count, out_depth_count = self.output_shape
         output = np.zeros((out_row_count, out_column_count, out_depth_count))
-        channels = data.shape[2]
 
         padded_data = np.pad(
             data,
@@ -74,9 +73,26 @@ class WindowConvolution(BaseConvolution):
 
         return self.activation(output)
 
-    def backward(self):
+    def backward(self, data: np.ndarray, output: np.ndarray, delta: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         out_row_count, out_column_count, out_depth_count = self.input_shape
-        raise NotImplementedError()
+        error = np.zeros((out_row_count, out_column_count, out_depth_count))
+
+        # for each filter
+        for f, _filter, in enumerate(self.weights):
+            # for each row
+            for i in range(out_row_count):
+                row_offset = i * self.stride
+
+                # for each column
+                for j in range(out_column_count):
+                    column_offset = j * self.stride
+
+                    error[row_offset:row_offset+self.size,column_offset:column_offset+self.size,:] += _filter * delta[i,j,:]
+
+        weight_gradient = data.T.dot(error)
+        bias_gradient = np.mean(error, axis=0)
+
+        return error, weight_gradient, bias_gradient
 
 
 # Matrix Math convolution using Toeplitz matrices
