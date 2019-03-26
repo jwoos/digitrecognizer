@@ -20,8 +20,8 @@ class Flatten(base.BaseLayer):
         return data.flatten()
 
     def backward(self, data: np.ndarray, output: np.ndarray, delta: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        data = np.copy(data)
-        return data.reshape(input_shape)
+        delta = np.copy(delta)
+        return delta.reshape(input_shape)
 
     def infer_output_shape(self, input_shape: Tuple[int, int, int]) -> Tuple[int]:
         return (np.product(input_shape),)
