@@ -60,30 +60,22 @@ class WindowConvolution(BaseConvolution):
             constant_values=0,
         )
 
-        row_offset = 0
-        column_offset = 0
-
         # for each filter
         for f, _filter in enumerate(self.weights):
             # for each row
-            row_offset = 0
-
             for i in range(out_row_count):
-                # for each column
-                column_offset = 0
+                row_offset = i * self.stride
 
+                # for each column
                 for j in range(out_column_count):
-                    total = 0
+                    column_offset = j * self.stride
 
                     output[i,j,f] = np.sum(padded_data[row_offset:row_offset+self.size,column_offset:column_offset+self.size,:] * _filter) + self.biases[f]
-
-                    column_offset += self.stride
-
-                row_offset += self.stride
 
         return self.activation(output)
 
     def backward(self):
+        out_row_count, out_column_count, out_depth_count = self.input_shape
         raise NotImplementedError()
 
 
