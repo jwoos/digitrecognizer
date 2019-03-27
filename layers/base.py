@@ -45,7 +45,7 @@ class BaseLayer(abc.ABC):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def backward(self):
+    def backward(self, data: np.ndarray, output: np.ndarray, delta: np.ndarray, previous_weight: np.ndarray=None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         raise NotImplementedError()
 
     @abc.abstractmethod

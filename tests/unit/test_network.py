@@ -31,6 +31,7 @@ class TestNetworkInitialization(TestCase):
                     stride=1,
                     padding=1,
                 ),
+                layers.flatten.Flatten(),
                 layers.fully_connected.FC(
                     units=10
                 ),
@@ -47,5 +48,7 @@ class TestNetworkInitialization(TestCase):
         self.assertEqual(network.layers[0].input_shape, (28, 28, 3))
         self.assertEqual(network.layers[0].output_shape, (28, 28, 3))
         self.assertEqual(network.layers[1].input_shape, (28, 28, 3))
-        self.assertEqual(network.layers[1].output_shape, (10,))
-        self.assertEqual(network.output_shape, (10,))
+        self.assertEqual(network.layers[1].output_shape, (1, 28 * 28 * 3))
+        self.assertEqual(network.layers[2].input_shape, (1, 28 * 28 * 3))
+        self.assertEqual(network.layers[2].output_shape, (1, 10))
+        self.assertEqual(network.output_shape, (1, 10))

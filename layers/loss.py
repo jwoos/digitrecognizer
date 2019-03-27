@@ -5,9 +5,9 @@ import numpy as np
 
 def mean_squared_error(data: np.ndarray, expected: np.ndarray, derivative=False) -> Union[float, np.ndarray]:
     if not derivative:
-        return np.sum((data - expected) ** 2) / len(data)
+        return np.mean(np.square(data - expected))
     else:
-        raise NotImplementedError()
+        return data - expected
 
 
 def cross_entropy(data: np.ndarray, expected: np.ndarray, derivative=False) -> Union[float, np.ndarray]:

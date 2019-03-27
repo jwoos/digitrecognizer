@@ -90,7 +90,7 @@ class WindowConvolution(BaseConvolution):
                     error[row_offset:row_offset+self.size,column_offset:column_offset+self.size,:] += _filter * delta[i,j,:]
 
         weight_gradient = data.T.dot(error)
-        bias_gradient = np.mean(error, axis=0)
+        bias_gradient = np.sum(error, axis=0, keepdims=True)
 
         return error, weight_gradient, bias_gradient
 

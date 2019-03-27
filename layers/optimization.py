@@ -6,7 +6,9 @@ def stochastic_gradient_descent(network, in_batch, out_batch):
 
     for data, label in zip(in_batch, out_batch):
         # Forward propagation
-        outputs = [data]
+        outputs = [
+            np.reshape(data, (1, -1))
+        ]
         for layer in network.layers:
             data = layer.forward(outputs[-1])
             outputs.append(data)
@@ -16,18 +18,19 @@ def stochastic_gradient_descent(network, in_batch, out_batch):
 
         # Backward propagation
         errors = [
-            network.loss(outputs[i], label, derivative=True)
+            network.loss(outputs[-1], np.reshape(label, (1, -1)), derivative=True)
         ]
-        for i, layer in reversed(enumerate(network.layers)):
-            if i == len(network.layers) - 1:
-                continue
-
-            i += 1
-            error, weight_gradient, bias_gradient = layer.backward(outputs[i - 1], outputs[i], errors[-1])
+        for i, layer in reversed(tuple(enumerate(network.layers, start=1))):
+            error, weight_gradient, bias_gradient = layer.backward(
+                data=outputs[i - 1],
+                output=outputs[i],
+                delta=errors[-1],
+                previous_weight=network.layers[i - 1].weights,
+            )
 
             # update parameters
             layer.weights -= weight_gradient * network.learning_rate
-            layer.biases -= bias_gradient * network.learning_rate
+            layer.biases -= bias_gradient[0] * network.learning_rate
 
             errors.append(error)
 

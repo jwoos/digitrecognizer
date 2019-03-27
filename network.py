@@ -33,13 +33,13 @@ class Network:
 
     def train(self, data: np.ndarray, labels: np.ndarray):
         for epoch in range(self.epochs):
-            iteration = 0
+            output = [None, None]
 
             for loss, accuracy in self.optimization(self, data, labels):
-                iteration += 1
+                output[0] = loss
+                output[1] = accuracy
 
-                if iteration % 1000:
-                    print(f'[Iteration {iteration}] Loss: {loss} | Accuracy: {accuracy}')
+            print(f'[Epoch {epoch}] Loss: {output[0]} | Accuracy: {output[1]}')
 
     def validate(self, data: np.ndarray, labels: np.ndarray):
         correct = 0
